@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1B1B2F">
+<title>Daily Check-In</title>
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap');
+
+:root{
+  --bg: #1B1B2F;
+  --surface: #242444;
+  --surface-2: #2C2C55;
+  --text: #EDEAE3;
+  --text-dim: #9C98B8;
+  --amber: #E3B23C;
+  --m1: #C1666B; /* very low */
+  --m2: #D7A86E; /* low */
+  --m3: #B8B79A; /* neutral */
+  --m4: #8FB08F; /* good */
+  --m5: #6FA8A0; /* great */
+  --border: #3A3A63;
+}
+
+*{ box-sizing: border-box; }
+
+body{
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', -apple-system, sans-serif;
+  min-height: 100vh;
+  padding: 40px 20px 80px;
+}
+
+.page{
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+header{
+  margin-bottom: 32px;
+}
+
+header h1{
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 500;
+  font-size: 2rem;
+  margin: 0 0 6px;
+}
+
+header p{
+  color: var(--text-dim);
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.card{
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 28px;
+  margin-bottom: 24px;
+}
+
+.card h2{
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 500;
+  font-size: 1.25rem;
+  margin: 0 0 20px;
+}
+
+.slider-group{
+  margin-bottom: 24px;
+}
+
+.slider-top{
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 10px;
+}
+
+.slider-top label{
+  font-size: 0.9rem;
+  color: var(--text-dim);
+}
+
+.slider-top .value-label{
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.05rem;
+  transition: color 0.2s;
+}
+
+input[type=range]{
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--surface-2);
+  outline: none;
+}
+
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--amber);
+  cursor: pointer;
+  border: 3px solid var(--bg);
+}
+
+input[type=range]::-moz-range-thumb{
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--amber);
+  cursor: pointer;
+  border: 3px solid var(--bg);
+}
+
+textarea{
+  width: 100%;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  padding: 12px;
+  resize: vertical;
+  min-height: 60px;
+}
+
+textarea::placeholder{ color: var(--text-dim); }
+
+.actions{
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+button{
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 11px 20px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.btn-primary{
+  background: var(--amber);
+  color: #1B1B2F;
+}
+
+.btn-primary:hover{ opacity: 0.9; }
+
+.btn-secondary{
+  background: transparent;
+  border-color: var(--border);
+  color: var(--text);
+}
+
+.btn-secondary:hover{ border-color: var(--text-dim); }
+
+.status{
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin-top: 12px;
+  min-height: 1em;
+}
+
+.empty{
+  color: var(--text-dim);
+  font-size: 0.9rem;
+}
+
+.chart-wrap{
+  margin-bottom: 8px;
+}
+
+.legend{
+  display: flex;
+  gap: 20px;
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  margin-top: 10px;
+}
+
+.legend span{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dot{
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+table{
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+th, td{
+  text-align: left;
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+th{
+  color: var(--text-dim);
+  font-weight: 500;
+  font-size: 0.78rem;
+}
+
+.note-cell{
+  color: var(--text-dim);
+  max-width: 220px;
+}
+
+.del-btn{
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  padding: 2px 6px;
+  font-size: 1rem;
+}
+
+.del-btn:hover{ color: var(--m1); }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <header>
+    <h1>Daily Check-In</h1>
+    <p>A quick, private log of how you're feeling and thinking — saved automatically.</p>
+  </header>
+
+  <div class="card">
+    <h2 id="entry-heading">Today</h2>
+
+    <div class="slider-group">
+      <div class="slider-top">
+        <label>Emotional state</label>
+        <span class="value-label" id="mood-label">Neutral</span>
+      </div>
+      <input type="range" id="mood-slider" min="1" max="10" value="5">
+    </div>
+
+    <div class="slider-group">
+      <div class="slider-top">
+        <label>Mental clarity / focus</label>
+        <span class="value-label" id="mental-label">Neutral</span>
+      </div>
+      <input type="range" id="mental-slider" min="1" max="10" value="5">
+    </div>
+
+    <textarea id="note" placeholder="Anything worth noting? (optional)"></textarea>
+
+    <div class="actions">
+      <button class="btn-primary" id="save-btn">Save entry</button>
+      <button class="btn-secondary" id="export-btn">Download a copy</button>
+    </div>
+    <div class="status" id="status"></div>
+  </div>
+
+  <div class="card">
+    <h2>Excel file</h2>
+    <p class="empty" id="link-explainer">Link one Excel file below. Every time you save an entry, it writes straight into that same file — so all your progress stays in one place.</p>
+    <div class="actions">
+      <button class="btn-secondary" id="link-btn">Link Excel file</button>
+      <button class="btn-secondary" id="reconnect-btn" style="display:none">Reconnect file</button>
+    </div>
+    <div class="status" id="link-status"></div>
+  </div>
+
+  <div class="card">
+    <h2>Trend</h2>
+    <div class="chart-wrap" id="chart-wrap">
+      <p class="empty">Log a few days to see your trend here.</p>
+    </div>
+    <div class="legend">
+      <span><span class="dot" style="background:var(--amber)"></span>Emotional state</span>
+      <span><span class="dot" style="background:var(--m4)"></span>Mental clarity</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>History</h2>
+    <div id="history-wrap">
+      <p class="empty">No entries yet.</p>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+const STORAGE_KEY = 'mood-entries';
+const moodLabels = {1:'Very low',2:'Very low',3:'Low',4:'Low',5:'Neutral',6:'Neutral',7:'Good',8:'Good',9:'Great',10:'Great'};
+const mentalLabels = {1:'Foggy',2:'Foggy',3:'Distracted',4:'Distracted',5:'Steady',6:'Steady',7:'Clear',8:'Clear',9:'Sharp',10:'Sharp'};
+
+let entries = [];
+let fileHandle = null;
+let pendingHandle = null;
+const canLinkFile = 'showSaveFilePicker' in window;
+
+// --- tiny IndexedDB helper so the linked file handle survives a page reload ---
+const DB_NAME = 'mood-tracker-db', STORE = 'handles';
+function idbOpen(){
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, 1);
+    req.onupgradeneeded = () => req.result.createObjectStore(STORE);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+async function idbGet(key){
+  const db = await idbOpen();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE, 'readonly');
+    const r = tx.objectStore(STORE).get(key);
+    r.onsuccess = () => resolve(r.result || null);
+    r.onerror = () => reject(r.error);
+  });
+}
+async function idbSet(key, val){
+  const db = await idbOpen();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE, 'readwrite');
+    tx.objectStore(STORE).put(val, key);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
+function todayStr(){
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+function levelColor(v){
+  if (v <= 2) return 'var(--m1)';
+  if (v <= 4) return 'var(--m2)';
+  if (v <= 6) return 'var(--m3)';
+  if (v <= 8) return 'var(--m4)';
+  return 'var(--m5)';
+}
+
+const moodSlider = document.getElementById('mood-slider');
+const mentalSlider = document.getElementById('mental-slider');
+const moodLabel = document.getElementById('mood-label');
+const mentalLabel = document.getElementById('mental-label');
+const statusEl = document.getElementById('status');
+const noteEl = document.getElementById('note');
+
+function refreshSliderLabels(){
+  moodLabel.textContent = moodLabels[moodSlider.value];
+  moodLabel.style.color = levelColor(Number(moodSlider.value));
+  mentalLabel.textContent = mentalLabels[mentalSlider.value];
+  mentalLabel.style.color = levelColor(Number(mentalSlider.value));
+}
+moodSlider.addEventListener('input', refreshSliderLabels);
+mentalSlider.addEventListener('input', refreshSliderLabels);
+refreshSliderLabels();
+
+const linkBtn = document.getElementById('link-btn');
+const reconnectBtn = document.getElementById('reconnect-btn');
+const linkStatusEl = document.getElementById('link-status');
+const linkExplainer = document.getElementById('link-explainer');
+
+if (!canLinkFile){
+  linkBtn.style.display = 'none';
+  linkExplainer.textContent = "Your browser doesn't support linking a file directly (this needs Chrome or Edge on desktop). Your entries are still saved automatically inside the app — use \"Download a copy\" any time to get the full log as one Excel file.";
+}
+
+function buildWorkbook(){
+  const rows = entries.map(e => ({
+    Date: e.date,
+    'Emotional state (1-10)': e.mood,
+    'Emotional label': moodLabels[e.mood],
+    'Mental clarity (1-10)': e.mental,
+    'Mental label': mentalLabels[e.mental],
+    Note: e.note || ''
+  }));
+  const ws = XLSX.utils.json_to_sheet(rows);
+  ws['!cols'] = [{wch:12},{wch:20},{wch:16},{wch:20},{wch:14},{wch:40}];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Check-ins');
+  return wb;
+}
+
+async function writeToLinkedFile(){
+  if (!fileHandle) return false;
+  try{
+    const wbout = XLSX.write(buildWorkbook(), {bookType:'xlsx', type:'array'});
+    const writable = await fileHandle.createWritable();
+    await writable.write(wbout);
+    await writable.close();
+    return true;
+  }catch(e){
+    return false;
+  }
+}
+
+async function linkFile(){
+  if (!canLinkFile) return;
+  try{
+    const handle = await window.showSaveFilePicker({
+      suggestedName: 'mood-log.xlsx',
+      types: [{ description: 'Excel Workbook', accept: { 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'] } }]
+    });
+    fileHandle = handle;
+    await idbSet('fileHandle', handle);
+    reconnectBtn.style.display = 'none';
+    linkStatusEl.textContent = `Linked to "${handle.name}". Saving an entry now updates this file directly.`;
+    await writeToLinkedFile();
+  }catch(e){
+    if (e.name !== 'AbortError') linkStatusEl.textContent = "Couldn't link a file — try again.";
+  }
+}
+
+async function tryRestoreHandle(){
+  if (!canLinkFile) return;
+  try{
+    const handle = await idbGet('fileHandle');
+    if (!handle) return;
+    const perm = await handle.queryPermission({ mode: 'readwrite' });
+    if (perm === 'granted'){
+      fileHandle = handle;
+      linkStatusEl.textContent = `Linked file: "${handle.name}".`;
+    } else {
+      pendingHandle = handle;
+      reconnectBtn.style.display = 'inline-block';
+      linkStatusEl.textContent = `Previously linked to "${handle.name}" — click "Reconnect file" to keep using it.`;
+    }
+  }catch(e){ /* handle no longer valid, ignore */ }
+}
+
+async function reconnectFile(){
+  if (!pendingHandle) return;
+  try{
+    const perm = await pendingHandle.requestPermission({ mode: 'readwrite' });
+    if (perm === 'granted'){
+      fileHandle = pendingHandle;
+      reconnectBtn.style.display = 'none';
+      linkStatusEl.textContent = `Linked file: "${fileHandle.name}".`;
+      await writeToLinkedFile();
+    }
+  }catch(e){
+    linkStatusEl.textContent = "Couldn't reconnect — try linking a file again.";
+  }
+}
+
+async function loadEntries(){
+  try{
+    const result = await window.storage.get(STORAGE_KEY, false);
+    entries = result && result.value ? JSON.parse(result.value) : [];
+  }catch(e){
+    entries = [];
+  }
+  entries.sort((a,b) => a.date.localeCompare(b.date));
+
+  const today = entries.find(e => e.date === todayStr());
+  if (today){
+    moodSlider.value = today.mood;
+    mentalSlider.value = today.mental;
+    noteEl.value = today.note || '';
+    refreshSliderLabels();
+    document.getElementById('entry-heading').textContent = "Today (already logged — saving again will update it)";
+  }
+
+  render();
+  await tryRestoreHandle();
+}
+
+async function persist(){
+  await window.storage.set(STORAGE_KEY, JSON.stringify(entries), false);
+}
+
+async function saveEntry(){
+  const date = todayStr();
+  const entry = {
+    date,
+    mood: Number(moodSlider.value),
+    mental: Number(mentalSlider.value),
+    note: noteEl.value.trim()
+  };
+  const idx = entries.findIndex(e => e.date === date);
+  if (idx >= 0) entries[idx] = entry;
+  else entries.push(entry);
+  entries.sort((a,b) => a.date.localeCompare(b.date));
+
+  statusEl.textContent = 'Saving…';
+  try{
+    await persist();
+    document.getElementById('entry-heading').textContent = "Today (already logged — saving again will update it)";
+    if (fileHandle){
+      const wrote = await writeToLinkedFile();
+      statusEl.textContent = wrote ? `Saved and updated "${fileHandle.name}".` : 'Saved in-app, but the linked file couldn\'t be updated — try reconnecting it below.';
+    } else {
+      statusEl.textContent = 'Saved. Link an Excel file below to keep it auto-updated.';
+    }
+  }catch(e){
+    statusEl.textContent = 'Could not save — try again.';
+  }
+  render();
+}
+
+async function deleteEntry(date){
+  entries = entries.filter(e => e.date !== date);
+  await persist();
+  if (date === todayStr()){
+    document.getElementById('entry-heading').textContent = 'Today';
+  }
+  render();
+}
+
+function render(){
+  renderHistory();
+  renderChart();
+}
+
+function renderHistory(){
+  const wrap = document.getElementById('history-wrap');
+  if (entries.length === 0){
+    wrap.innerHTML = '<p class="empty">No entries yet.</p>';
+    return;
+  }
+  const rows = [...entries].reverse().map(e => `
+    <tr>
+      <td>${e.date}</td>
+      <td style="color:${levelColor(e.mood)}">${e.mood} · ${moodLabels[e.mood]}</td>
+      <td style="color:${levelColor(e.mental)}">${e.mental} · ${mentalLabels[e.mental]}</td>
+      <td class="note-cell">${e.note ? e.note.replace(/</g,'&lt;') : ''}</td>
+      <td><button class="del-btn" onclick="deleteEntry('${e.date}')" title="Delete entry">✕</button></td>
+    </tr>
+  `).join('');
+  wrap.innerHTML = `
+    <table>
+      <thead><tr><th>Date</th><th>Emotional</th><th>Mental</th><th>Note</th><th></th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  `;
+}
+
+function renderChart(){
+  const wrap = document.getElementById('chart-wrap');
+  if (entries.length < 2){
+    wrap.innerHTML = '<p class="empty">Log a few days to see your trend here.</p>';
+    return;
+  }
+  const recent = entries.slice(-14);
+  const w = 580, h = 140, pad = 10;
+  const stepX = (w - pad*2) / (recent.length - 1);
+  const yFor = v => h - pad - ((v - 1) / 9) * (h - pad*2);
+
+  const moodPoints = recent.map((e,i) => `${pad + i*stepX},${yFor(e.mood)}`).join(' ');
+  const mentalPoints = recent.map((e,i) => `${pad + i*stepX},${yFor(e.mental)}`).join(' ');
+
+  const dateTicks = recent.map((e,i) => {
+    if (recent.length > 7 && i % Math.ceil(recent.length/6) !== 0 && i !== recent.length-1) return '';
+    const short = e.date.slice(5);
+    return `<text x="${pad + i*stepX}" y="${h+16}" font-size="10" fill="var(--text-dim)" text-anchor="middle">${short}</text>`;
+  }).join('');
+
+  wrap.innerHTML = `
+    <svg viewBox="0 0 ${w} ${h+24}" width="100%" style="overflow:visible">
+      <polyline points="${moodPoints}" fill="none" stroke="var(--amber)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <polyline points="${mentalPoints}" fill="none" stroke="var(--m4)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      ${dateTicks}
+    </svg>
+  `;
+}
+
+function exportToExcel(){
+  if (entries.length === 0){
+    statusEl.textContent = 'Nothing to export yet.';
+    return;
+  }
+  XLSX.writeFile(buildWorkbook(), `mood-log-${todayStr()}.xlsx`);
+}
+
+document.getElementById('save-btn').addEventListener('click', saveEntry);
+document.getElementById('export-btn').addEventListener('click', exportToExcel);
+linkBtn.addEventListener('click', linkFile);
+reconnectBtn.addEventListener('click', reconnectFile);
+window.deleteEntry = deleteEntry;
+
+loadEntries();
+
+if ('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
