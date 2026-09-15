@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1B1B2F">
+<title>Daily Check-In</title>
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap');
+
+:root{
+  --bg: #1B1B2F;
+  --surface: #242444;
+  --surface-2: #2C2C55;
+  --text: #EDEAE3;
+  --text-dim: #9C98B8;
+  --amber: #E3B23C;
+  --m1: #C1666B; /* very low */
+  --m2: #D7A86E; /* low */
+  --m3: #B8B79A; /* neutral */
+  --m4: #8FB08F; /* good */
+  --m5: #6FA8A0; /* great */
+  --border: #3A3A63;
+}
+
+*{ box-sizing: border-box; }
+
+body{
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', -apple-system, sans-serif;
+  min-height: 100vh;
+  padding: 40px 20px 80px;
+}
+
+.page{
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+header{ margin-bottom: 32px; }
+
+header h1{
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 500;
+  font-size: 2rem;
+  margin: 0 0 6px;
+}
+
+header p{
+  color: var(--text-dim);
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.card{
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 28px;
+  margin-bottom: 24px;
+}
+
+.card h2{
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 500;
+  font-size: 1.25rem;
+  margin: 0 0 4px;
+}
+
+.card-sub{
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  margin: 0 0 20px;
+}
+
+.slider-group{ margin-bottom: 24px; }
+
+.slider-top{
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 10px;
+}
+
+.slider-top label{ font-size: 0.9rem; color: var(--text-dim); }
+
+.slider-top .value-label{
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.05rem;
+  transition: color 0.2s;
+}
+
+input[type=range]{
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--surface-2);
+  outline: none;
+}
+
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--amber);
+  cursor: pointer;
+  border: 3px solid var(--bg);
+}
+
+input[type=range]::-moz-range-thumb{
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--amber);
+  cursor: pointer;
+  border: 3px solid var(--bg);
+}
+
+textarea, input[type=text], input[type=number]{
+  width: 100%;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  padding: 10px 12px;
+}
+
+textarea{ resize: vertical; min-height: 60px; }
+textarea::placeholder, input::placeholder{ color: var(--text-dim); }
+
+.actions{
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+button{
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 11px 20px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.btn-primary{ background: var(--amber); color: #1B1B2F; }
+.btn-primary:hover{ opacity: 0.9; }
+
+.btn-secondary{
+  background: transparent;
+  border-color: var(--border);
+  color: var(--text);
+}
+.btn-secondary:hover{ border-color: var(--text-dim); }
+
+.status{
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin-top: 12px;
+  min-height: 1em;
+}
+
+.empty{ color: var(--text-dim); font-size: 0.9rem; }
+
+.chart-wrap{ margin-bottom: 8px; }
+
+.legend{
+  display: flex;
+  gap: 20px;
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  margin-top: 10px;
+}
+.legend span{ display: inline-flex; align-items: center; gap: 6px; }
+.dot{ width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+
+table{ width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+th, td{ text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--border); }
+th{ color: var(--text-dim); font-weight: 500; font-size: 0.78rem; }
+.note-cell{ color: var(--text-dim); max-width: 200px; }
+
+.del-btn{
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  padding: 2px 6px;
+  font-size: 1rem;
+}
+.del-btn:hover{ color: var(--m1); }
+
+/* --- affect grid --- */
+.affect-pad{
+  position: relative;
+  width: 100%;
+  max-width: 300px;
+  aspect-ratio: 1;
+  margin: 28px auto 0;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  cursor: crosshair;
+  touch-action: none;
+}
+.affect-pad::before{
+  content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: var(--border);
+}
+.affect-pad::after{
+  content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: var(--border);
+}
+.affect-dot{
+  position: absolute;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--amber);
+  border: 3px solid var(--bg);
+  transform: translate(-50%, -50%);
+  left: 50%; top: 50%;
+  pointer-events: none;
+}
+.axis-label{ position: absolute; font-size: 0.72rem; color: var(--text-dim); white-space: nowrap; }
+.axis-label.top{ top: -22px; left: 50%; transform: translateX(-50%); }
+.axis-label.bottom{ bottom: -22px; left: 50%; transform: translateX(-50%); }
+.axis-label.left{ left: 0; top: 50%; transform: translate(-2px, -50%) rotate(-90deg) translateY(-50%); transform-origin: left center; }
+.axis-label.right{ right: 0; top: 50%; transform: translate(2px, -50%) rotate(90deg) translateY(-50%); transform-origin: right center; }
+.affect-readout{
+  text-align: center;
+  margin-top: 40px;
+  font-size: 0.9rem;
+  color: var(--text-dim);
+}
+.affect-readout b{ font-family: 'Fraunces', Georgia, serif; font-weight: 500; color: var(--amber); font-style: normal; }
+
+/* --- chips --- */
+.chip-group{ display: flex; flex-wrap: wrap; gap: 8px; }
+.chip{
+  padding: 7px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text-dim);
+  font-size: 0.83rem;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  user-select: none;
+}
+.chip.selected{ background: var(--amber); color: #1B1B2F; border-color: var(--amber); }
+
+/* --- detail accordion --- */
+.detail-toggle{
+  background: transparent;
+  border: 1px dashed var(--border);
+  color: var(--text-dim);
+  border-radius: 6px;
+  padding: 10px 16px;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  font-size: 0.85rem;
+  margin-top: 24px;
+}
+.detail-toggle:hover{ border-color: var(--text-dim); color: var(--text); }
+.detail-sections{ display: none; margin-top: 20px; }
+.detail-sections.open{ display: block; }
+.subsection{ margin-bottom: 28px; }
+.subsection:last-child{ margin-bottom: 0; }
+.subsection h3{
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: var(--text);
+  margin: 0 0 14px;
+}
+.field-block{ margin-bottom: 16px; }
+.field-block:last-child{ margin-bottom: 0; }
+.field-block label{ display: block; font-size: 0.8rem; color: var(--text-dim); margin-bottom: 8px; }
+.field-row{ display: flex; gap: 12px; flex-wrap: wrap; }
+.field-row .field-block{ flex: 1; min-width: 130px; }
+
+.insight-item{
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+.insight-item:last-child{ border-bottom: none; padding-bottom: 0; }
+
+.sync-badge{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+.sync-badge .dot{ background: var(--m3); }
+.sync-badge.online .dot{ background: var(--m5); }
+.auth-row{ display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+.auth-row input{ flex: 1; min-width: 160px; }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <header>
+    <h1>Daily Check-In</h1>
+    <p>A private, low-pressure log of your emotional, mental, and physical state — saved automatically.</p>
+  </header>
+
+  <div class="card" id="sync-card">
+    <h2>Sync</h2>
+    <p class="card-sub" id="sync-explainer">Add your Firebase config in index.html to enable syncing entries across your phone and laptop. Without it, entries just save on this device — everything else still works. See README for setup steps.</p>
+
+    <div id="auth-signed-out" style="display:none">
+      <div class="auth-row">
+        <input type="text" id="auth-email" placeholder="Email" autocomplete="username">
+        <input type="password" id="auth-password" placeholder="Password" autocomplete="current-password">
+      </div>
+      <div class="actions" style="margin-top:0">
+        <button class="btn-primary" id="signin-btn">Sign in</button>
+        <button class="btn-secondary" id="signup-btn">Create account</button>
+      </div>
+      <div class="status" id="auth-status"></div>
+    </div>
+
+    <div id="auth-signed-in" style="display:none">
+      <div class="actions" style="margin-top:0; align-items:center">
+        <span class="sync-badge" id="sync-badge"><span class="dot"></span><span id="sync-badge-text">Synced</span></span>
+        <span style="flex:1"></span>
+        <span class="status" id="auth-email-display" style="margin:0"></span>
+        <button class="btn-secondary" id="signout-btn">Sign out</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 id="entry-heading">Today</h2>
+    <p class="card-sub">Tap once on the grid below — that's the whole quick check-in.</p>
+
+    <div class="affect-pad" id="affect-pad">
+      <div class="affect-dot" id="affect-dot"></div>
+      <span class="axis-label top">High energy</span>
+      <span class="axis-label bottom">Low energy</span>
+      <span class="axis-label left">Unpleasant</span>
+      <span class="axis-label right">Pleasant</span>
+    </div>
+    <div class="affect-readout" id="affect-readout">This tends to feel like: <b id="affect-word">Neutral</b></div>
+
+    <div class="slider-group" style="margin-top:28px">
+      <div class="slider-top">
+        <label>Any of these fit right now?</label>
+      </div>
+      <div class="chip-group" id="tag-chips"></div>
+    </div>
+
+    <textarea id="note" placeholder="Anything worth noting? (optional)"></textarea>
+
+    <button type="button" class="detail-toggle" id="detail-toggle">Add more detail — mind, body, context, lifestyle (optional) ▾</button>
+
+    <div class="detail-sections" id="detail-sections">
+      <div class="subsection">
+        <h3>Mind</h3>
+        <div class="slider-group">
+          <div class="slider-top">
+            <label>Mental clarity / focus</label>
+            <span class="value-label" id="clarity-label">Neutral</span>
+          </div>
+          <input type="range" id="clarity-slider" min="1" max="10" value="5">
+        </div>
+        <div class="field-block">
+          <label>Racing or looping thoughts?</label>
+          <div class="chip-group" id="racing-chips"></div>
+        </div>
+        <div class="field-block">
+          <label>Self-talk</label>
+          <div class="chip-group" id="selftalk-chips"></div>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <h3>Body</h3>
+        <div class="field-block">
+          <label>Physical sensations</label>
+          <div class="chip-group" id="body-chips"></div>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <h3>Context</h3>
+        <div class="field-block">
+          <label>Event or trigger</label>
+          <input type="text" id="trigger-input" placeholder="e.g. work deadline, argument, good news">
+        </div>
+        <div class="field-block">
+          <label>Social connection</label>
+          <div class="chip-group" id="social-chips"></div>
+        </div>
+        <div class="field-row">
+          <div class="field-block">
+            <label>Screen time (hrs)</label>
+            <input type="number" id="screentime-input" min="0" max="24" step="0.5">
+          </div>
+          <div class="field-block">
+            <label>Noise level</label>
+            <div class="chip-group" id="noise-chips"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <h3>Lifestyle</h3>
+        <div class="field-row">
+          <div class="field-block">
+            <label>Sleep (hrs)</label>
+            <input type="number" id="sleep-input" min="0" max="24" step="0.5">
+          </div>
+          <div class="field-block">
+            <label>Sleep quality</label>
+            <div class="chip-group" id="sleepq-chips"></div>
+          </div>
+        </div>
+        <div class="field-block">
+          <label>Exercise / movement</label>
+          <div class="chip-group" id="exercise-chips"></div>
+        </div>
+        <div class="field-row">
+          <div class="field-block">
+            <label>Caffeine (cups)</label>
+            <input type="number" id="caffeine-input" min="0" step="1">
+          </div>
+          <div class="field-block">
+            <label>Alcohol (drinks)</label>
+            <input type="number" id="alcohol-input" min="0" step="1">
+          </div>
+          <div class="field-block">
+            <label>Water (glasses)</label>
+            <input type="number" id="water-input" min="0" step="1">
+          </div>
+        </div>
+        <div class="field-block">
+          <label>Medication / supplements</label>
+          <input type="text" id="meds-input" placeholder="optional">
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" id="save-btn">Save entry</button>
+      <button class="btn-secondary" id="export-btn">Download a copy</button>
+    </div>
+    <div class="status" id="status"></div>
+  </div>
+
+  <div class="card">
+    <h2>Excel file</h2>
+    <p class="empty" id="link-explainer">Link one Excel file below. Every time you save an entry, it writes straight into that same file — so all your progress stays in one place.</p>
+    <div class="actions">
+      <button class="btn-secondary" id="link-btn">Link Excel file</button>
+      <button class="btn-secondary" id="reconnect-btn" style="display:none">Reconnect file</button>
+    </div>
+    <div class="status" id="link-status"></div>
+  </div>
+
+  <div class="card">
+    <h2>Trend</h2>
+    <div class="chart-wrap" id="chart-wrap">
+      <p class="empty">Log a few days to see your trend here.</p>
+    </div>
+    <div class="legend">
+      <span><span class="dot" style="background:var(--amber)"></span>Valence (pleasant ↔ unpleasant)</span>
+      <span><span class="dot" style="background:var(--m4)"></span>Energy level</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Patterns</h2>
+    <p class="card-sub">Simple comparisons across your own logged days — not diagnoses, and more entries make them more reliable.</p>
+    <div id="insights-wrap"><p class="empty">Patterns show up after about a week of check-ins.</p></div>
+  </div>
+
+  <div class="card">
+    <h2>History</h2>
+    <p class="card-sub" id="entry-count"></p>
+    <div id="history-wrap">
+      <p class="empty">No entries yet.</p>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script>
+// --- Fill these in from your Firebase project settings to enable cross-device sync. ---
+// See README.md > "Cross-device sync" for step-by-step setup. Leave as-is to run local-only.
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+const cloudEnabled = firebaseConfig.apiKey !== "YOUR_API_KEY";
+let auth = null, db = null, currentUser = null, unsubscribeEntries = null;
+
+if (cloudEnabled){
+  firebase.initializeApp(firebaseConfig);
+  auth = firebase.auth();
+  db = firebase.firestore();
+  db.enablePersistence().catch(() => {});
+}
+
+const STORAGE_KEY = 'mood-entries';
+const mentalLabels = {1:'Foggy',2:'Foggy',3:'Distracted',4:'Distracted',5:'Steady',6:'Steady',7:'Clear',8:'Clear',9:'Sharp',10:'Sharp'};
+
+const EMOTION_TAGS = ['Overwhelmed','Grateful','Irritable','Hopeful','Lonely','Anxious','Calm','Excited','Frustrated','Content','Sad','Motivated','Numb','Proud'];
+const RACING_OPTS = ['None','Some','Racing / spiraling'];
+const SELFTALK_OPTS = ['Neutral','Self-critical','Catastrophizing','Encouraging'];
+const BODY_OPTS = ['Muscle tension','Chest tightness','Fatigue','Headache','Stomach / gut issues','Restless','None of these'];
+const SOCIAL_OPTS = ['Isolated','Light contact','Quality time','Overstimulated'];
+const NOISE_OPTS = ['Quiet','Moderate','Loud'];
+const SLEEPQ_OPTS = ['Poor','Fair','Good','Great'];
+const EXERCISE_OPTS = ['None','Light','Moderate','Intense'];
+
+let entries = [];
+let fileHandle = null;
+let pendingHandle = null;
+const canLinkFile = 'showSaveFilePicker' in window;
+
+// --- tiny IndexedDB helper so the linked file handle survives a page reload ---
+const DB_NAME = 'mood-tracker-db', STORE = 'handles';
+function idbOpen(){
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, 1);
+    req.onupgradeneeded = () => req.result.createObjectStore(STORE);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+async function idbGet(key){
+  const db = await idbOpen();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE, 'readonly');
+    const r = tx.objectStore(STORE).get(key);
+    r.onsuccess = () => resolve(r.result || null);
+    r.onerror = () => reject(r.error);
+  });
+}
+async function idbSet(key, val){
+  const db = await idbOpen();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE, 'readwrite');
+    tx.objectStore(STORE).put(val, key);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
+function todayStr(){
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+function levelColor(v){
+  if (v <= 2) return 'var(--m1)';
+  if (v <= 4) return 'var(--m2)';
+  if (v <= 6) return 'var(--m3)';
+  if (v <= 8) return 'var(--m4)';
+  return 'var(--m5)';
+}
+
+function numOrNull(v){ return (v === '' || v === null || v === undefined) ? null : Number(v); }
+
+function affectLabel(v, a){
+  const mid = 5.5;
+  if (Math.abs(v-mid) < 1.5 && Math.abs(a-mid) < 1.5) return 'Neutral';
+  if (a >= mid && v < mid) return 'Anxious or tense';
+  if (a >= mid && v >= mid) return 'Excited or energized';
+  if (a < mid && v < mid) return 'Low or drained';
+  return 'Calm or content';
+}
+
+/* --- generic chip group --- */
+function makeChipGroup(containerEl, options, multi){
+  const state = multi ? new Set() : { value: null };
+  function render(){
+    containerEl.innerHTML = options.map(o => {
+      const selected = multi ? state.has(o) : state.value === o;
+      return `<button type="button" class="chip${selected?' selected':''}" data-val="${o}">${o}</button>`;
+    }).join('');
+  }
+  containerEl.addEventListener('click', e => {
+    const btn = e.target.closest('.chip');
+    if (!btn) return;
+    const v = btn.dataset.val;
+    if (multi){
+      if (state.has(v)) state.delete(v); else state.add(v);
+    } else {
+      state.value = (state.value === v) ? null : v;
+    }
+    render();
+  });
+  render();
+  return {
+    get: () => multi ? Array.from(state) : state.value,
+    set: (val) => {
+      if (multi){ state.clear(); (val||[]).forEach(v => state.add(v)); }
+      else { state.value = val || null; }
+      render();
+    }
+  };
+}
+
+const tagsGroup = makeChipGroup(document.getElementById('tag-chips'), EMOTION_TAGS, true);
+const racingGroup = makeChipGroup(document.getElementById('racing-chips'), RACING_OPTS, false);
+const selfTalkGroup = makeChipGroup(document.getElementById('selftalk-chips'), SELFTALK_OPTS, false);
+const bodyGroup = makeChipGroup(document.getElementById('body-chips'), BODY_OPTS, true);
+const socialGroup = makeChipGroup(document.getElementById('social-chips'), SOCIAL_OPTS, false);
+const noiseGroup = makeChipGroup(document.getElementById('noise-chips'), NOISE_OPTS, false);
+const sleepQualityGroup = makeChipGroup(document.getElementById('sleepq-chips'), SLEEPQ_OPTS, false);
+const exerciseGroup = makeChipGroup(document.getElementById('exercise-chips'), EXERCISE_OPTS, false);
+
+/* --- affect pad --- */
+const pad = document.getElementById('affect-pad');
+const dot = document.getElementById('affect-dot');
+const affectWord = document.getElementById('affect-word');
+let valence = 5, arousal = 5;
+let dragging = false;
+
+function setAffectFromEvent(e){
+  const rect = pad.getBoundingClientRect();
+  let x = (e.clientX - rect.left) / rect.width;
+  let y = (e.clientY - rect.top) / rect.height;
+  x = Math.min(1, Math.max(0, x));
+  y = Math.min(1, Math.max(0, y));
+  valence = Math.round(1 + x*9);
+  arousal = Math.round(1 + (1-y)*9);
+  updateAffectUI();
+}
+function updateAffectUI(){
+  const xPct = ((valence-1)/9)*100;
+  const yPct = (1-((arousal-1)/9))*100;
+  dot.style.left = xPct + '%';
+  dot.style.top = yPct + '%';
+  dot.style.background = levelColor(valence);
+  affectWord.textContent = affectLabel(valence, arousal);
+}
+pad.addEventListener('pointerdown', e => { dragging = true; pad.setPointerCapture(e.pointerId); setAffectFromEvent(e); });
+pad.addEventListener('pointermove', e => { if (dragging) setAffectFromEvent(e); });
+pad.addEventListener('pointerup', () => { dragging = false; });
+pad.addEventListener('pointercancel', () => { dragging = false; });
+updateAffectUI();
+
+/* --- clarity slider --- */
+const claritySlider = document.getElementById('clarity-slider');
+const clarityLabel = document.getElementById('clarity-label');
+function refreshClarityLabel(){
+  clarityLabel.textContent = mentalLabels[claritySlider.value];
+  clarityLabel.style.color = levelColor(Number(claritySlider.value));
+}
+claritySlider.addEventListener('input', refreshClarityLabel);
+refreshClarityLabel();
+
+/* --- detail accordion --- */
+const detailToggle = document.getElementById('detail-toggle');
+const detailSections = document.getElementById('detail-sections');
+detailToggle.addEventListener('click', () => {
+  const open = detailSections.classList.toggle('open');
+  detailToggle.textContent = open
+    ? 'Hide additional detail ▴'
+    : 'Add more detail — mind, body, context, lifestyle (optional) ▾';
+});
+
+const statusEl = document.getElementById('status');
+const noteEl = document.getElementById('note');
+const triggerInput = document.getElementById('trigger-input');
+const screenTimeInput = document.getElementById('screentime-input');
+const sleepInput = document.getElementById('sleep-input');
+const caffeineInput = document.getElementById('caffeine-input');
+const alcoholInput = document.getElementById('alcohol-input');
+const waterInput = document.getElementById('water-input');
+const medsInput = document.getElementById('meds-input');
+
+const linkBtn = document.getElementById('link-btn');
+const reconnectBtn = document.getElementById('reconnect-btn');
+const linkStatusEl = document.getElementById('link-status');
+const linkExplainer = document.getElementById('link-explainer');
+
+if (!canLinkFile){
+  linkBtn.style.display = 'none';
+  linkExplainer.textContent = "Your browser doesn't support linking a file directly (this needs Chrome or Edge on desktop). Your entries are still saved automatically inside the app — use \"Download a copy\" any time to get the full log as one Excel file.";
+}
+
+function buildWorkbook(){
+  const rows = entries.map(e => ({
+    Date: e.date,
+    Valence: e.valence,
+    Energy: e.arousal,
+    'Affect summary': affectLabel(e.valence, e.arousal),
+    'Emotion tags': (e.tags||[]).join(', '),
+    'Mental clarity': e.clarity,
+    'Racing thoughts': e.racing || '',
+    'Self-talk': e.selfTalk || '',
+    'Body sensations': (e.body||[]).join(', '),
+    'Event / trigger': e.trigger || '',
+    'Social connection': e.social || '',
+    'Screen time (hrs)': e.screenTime ?? '',
+    'Noise level': e.noise || '',
+    'Sleep (hrs)': e.sleepHours ?? '',
+    'Sleep quality': e.sleepQuality || '',
+    Exercise: e.exercise || '',
+    'Caffeine (cups)': e.caffeine ?? '',
+    'Alcohol (drinks)': e.alcohol ?? '',
+    'Water (glasses)': e.water ?? '',
+    'Medication / supplements': e.meds || '',
+    Note: e.note || ''
+  }));
+  const ws = XLSX.utils.json_to_sheet(rows);
+  ws['!cols'] = Object.keys(rows[0] || {}).map(() => ({ wch: 16 }));
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Check-ins');
+  return wb;
+}
+
+async function writeToLinkedFile(){
+  if (!fileHandle) return false;
+  try{
+    const wbout = XLSX.write(buildWorkbook(), {bookType:'xlsx', type:'array'});
+    const writable = await fileHandle.createWritable();
+    await writable.write(wbout);
+    await writable.close();
+    return true;
+  }catch(e){
+    return false;
+  }
+}
+
+async function linkFile(){
+  if (!canLinkFile) return;
+  try{
+    const handle = await window.showSaveFilePicker({
+      suggestedName: 'mood-log.xlsx',
+      types: [{ description: 'Excel Workbook', accept: { 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'] } }]
+    });
+    fileHandle = handle;
+    await idbSet('fileHandle', handle);
+    reconnectBtn.style.display = 'none';
+    linkStatusEl.textContent = `Linked to "${handle.name}". Saving an entry now updates this file directly.`;
+    await writeToLinkedFile();
+  }catch(e){
+    if (e.name !== 'AbortError') linkStatusEl.textContent = "Couldn't link a file — try again.";
+  }
+}
+
+async function tryRestoreHandle(){
+  if (!canLinkFile) return;
+  try{
+    const handle = await idbGet('fileHandle');
+    if (!handle) return;
+    const perm = await handle.queryPermission({ mode: 'readwrite' });
+    if (perm === 'granted'){
+      fileHandle = handle;
+      linkStatusEl.textContent = `Linked file: "${handle.name}".`;
+    } else {
+      pendingHandle = handle;
+      reconnectBtn.style.display = 'inline-block';
+      linkStatusEl.textContent = `Previously linked to "${handle.name}" — click "Reconnect file" to keep using it.`;
+    }
+  }catch(e){ /* handle no longer valid, ignore */ }
+}
+
+async function reconnectFile(){
+  if (!pendingHandle) return;
+  try{
+    const perm = await pendingHandle.requestPermission({ mode: 'readwrite' });
+    if (perm === 'granted'){
+      fileHandle = pendingHandle;
+      reconnectBtn.style.display = 'none';
+      linkStatusEl.textContent = `Linked file: "${fileHandle.name}".`;
+      await writeToLinkedFile();
+    }
+  }catch(e){
+    linkStatusEl.textContent = "Couldn't reconnect — try linking a file again.";
+  }
+}
+
+function populateForm(e){
+  valence = e.valence; arousal = e.arousal;
+  updateAffectUI();
+  tagsGroup.set(e.tags || []);
+  claritySlider.value = e.clarity || 5;
+  refreshClarityLabel();
+  racingGroup.set(e.racing);
+  selfTalkGroup.set(e.selfTalk);
+  bodyGroup.set(e.body || []);
+  triggerInput.value = e.trigger || '';
+  socialGroup.set(e.social);
+  screenTimeInput.value = e.screenTime ?? '';
+  noiseGroup.set(e.noise);
+  sleepInput.value = e.sleepHours ?? '';
+  sleepQualityGroup.set(e.sleepQuality);
+  exerciseGroup.set(e.exercise);
+  caffeineInput.value = e.caffeine ?? '';
+  alcoholInput.value = e.alcohol ?? '';
+  waterInput.value = e.water ?? '';
+  medsInput.value = e.meds || '';
+  noteEl.value = e.note || '';
+}
+
+function updateSyncBadge(cloudActive){
+  const badge = document.getElementById('sync-badge');
+  const text = document.getElementById('sync-badge-text');
+  if (!badge) return;
+  if (cloudActive){ badge.classList.add('online'); text.textContent = 'Synced'; }
+  else { badge.classList.remove('online'); text.textContent = 'Offline — reconnecting…'; }
+}
+
+function applyLoadedEntries(){
+  entries.sort((a,b) => a.date.localeCompare(b.date));
+  const today = entries.find(e => e.date === todayStr());
+  if (today){
+    populateForm(today);
+    document.getElementById('entry-heading').textContent = "Today (already logged — saving again will update it)";
+  }
+  render();
+}
+
+function loadLocalEntries(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    entries = raw ? JSON.parse(raw) : [];
+  }catch(e){
+    entries = [];
+  }
+  applyLoadedEntries();
+}
+
+async function migrateLocalToCloud(uid){
+  const raw = localStorage.getItem(STORAGE_KEY);
+  const local = raw ? JSON.parse(raw) : [];
+  if (!local.length) return;
+  const coll = db.collection('users').doc(uid).collection('entries');
+  const snap = await coll.get();
+  if (!snap.empty) return; // never overwrite existing cloud data
+  const batch = db.batch();
+  local.forEach(e => batch.set(coll.doc(e.date), e));
+  await batch.commit();
+}
+
+function attachCloudListener(uid){
+  if (unsubscribeEntries) unsubscribeEntries();
+  unsubscribeEntries = db.collection('users').doc(uid).collection('entries').onSnapshot(
+    snapshot => {
+      entries = snapshot.docs.map(d => d.data());
+      updateSyncBadge(true);
+      applyLoadedEntries();
+    },
+    () => updateSyncBadge(false)
+  );
+}
+
+function detachCloudListener(){
+  if (unsubscribeEntries){ unsubscribeEntries(); unsubscribeEntries = null; }
+}
+
+async function saveEntry(){
+  const date = todayStr();
+  const entry = {
+    date, valence, arousal,
+    tags: tagsGroup.get(),
+    clarity: Number(claritySlider.value),
+    racing: racingGroup.get(),
+    selfTalk: selfTalkGroup.get(),
+    body: bodyGroup.get(),
+    trigger: triggerInput.value.trim(),
+    social: socialGroup.get(),
+    screenTime: numOrNull(screenTimeInput.value),
+    noise: noiseGroup.get(),
+    sleepHours: numOrNull(sleepInput.value),
+    sleepQuality: sleepQualityGroup.get(),
+    exercise: exerciseGroup.get(),
+    caffeine: numOrNull(caffeineInput.value),
+    alcohol: numOrNull(alcoholInput.value),
+    water: numOrNull(waterInput.value),
+    meds: medsInput.value.trim(),
+    note: noteEl.value.trim()
+  };
+  const idx = entries.findIndex(e => e.date === date);
+  if (idx >= 0) entries[idx] = entry;
+  else entries.push(entry);
+  entries.sort((a,b) => a.date.localeCompare(b.date));
+
+  statusEl.textContent = 'Saving…';
+  try{
+    if (currentUser){
+      await db.collection('users').doc(currentUser.uid).collection('entries').doc(date).set(entry);
+    } else {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+    }
+    document.getElementById('entry-heading').textContent = "Today (already logged — saving again will update it)";
+    if (fileHandle){
+      const wrote = await writeToLinkedFile();
+      statusEl.textContent = wrote ? `Saved and updated "${fileHandle.name}".` : "Saved in-app, but the linked file couldn't be updated — try reconnecting it below.";
+    } else if (currentUser){
+      statusEl.textContent = 'Saved and synced.';
+    } else {
+      statusEl.textContent = 'Saved. Link an Excel file below to keep it auto-updated, or sign in above to sync across devices.';
+    }
+  }catch(e){
+    statusEl.textContent = 'Could not save — try again.';
+  }
+  if (!currentUser) render(); // cloud mode re-renders via the live listener
+}
+
+async function deleteEntry(date){
+  entries = entries.filter(e => e.date !== date);
+  try{
+    if (currentUser){
+      await db.collection('users').doc(currentUser.uid).collection('entries').doc(date).delete();
+    } else {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+    }
+  }catch(e){}
+  if (date === todayStr()){
+    document.getElementById('entry-heading').textContent = 'Today';
+  }
+  if (!currentUser) render();
+}
+
+function render(){
+  renderHistory();
+  renderChart();
+  renderInsights();
+}
+
+function renderHistory(){
+  const wrap = document.getElementById('history-wrap');
+  const countEl = document.getElementById('entry-count');
+  countEl.textContent = entries.length === 0 ? '' : `${entries.length} check-in${entries.length===1?'':'s'} logged so far.`;
+  if (entries.length === 0){
+    wrap.innerHTML = '<p class="empty">No entries yet.</p>';
+    return;
+  }
+  const rows = [...entries].reverse().map(e => `
+    <tr>
+      <td>${e.date}</td>
+      <td style="color:${levelColor(e.valence)}">${affectLabel(e.valence, e.arousal)}</td>
+      <td class="note-cell">${(e.tags||[]).join(', ')}</td>
+      <td class="note-cell">${e.note ? e.note.replace(/</g,'&lt;') : ''}</td>
+      <td><button class="del-btn" onclick="deleteEntry('${e.date}')" title="Delete entry">✕</button></td>
+    </tr>
+  `).join('');
+  wrap.innerHTML = `
+    <table>
+      <thead><tr><th>Date</th><th>Affect</th><th>Tags</th><th>Note</th><th></th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  `;
+}
+
+function renderChart(){
+  const wrap = document.getElementById('chart-wrap');
+  if (entries.length < 2){
+    wrap.innerHTML = '<p class="empty">Log a few days to see your trend here.</p>';
+    return;
+  }
+  const recent = entries.slice(-14);
+  const w = 580, h = 140, pad = 10;
+  const stepX = (w - pad*2) / (recent.length - 1);
+  const yFor = v => h - pad - ((v - 1) / 9) * (h - pad*2);
+
+  const valencePoints = recent.map((e,i) => `${pad + i*stepX},${yFor(e.valence)}`).join(' ');
+  const arousalPoints = recent.map((e,i) => `${pad + i*stepX},${yFor(e.arousal)}`).join(' ');
+
+  const dateTicks = recent.map((e,i) => {
+    if (recent.length > 7 && i % Math.ceil(recent.length/6) !== 0 && i !== recent.length-1) return '';
+    const short = e.date.slice(5);
+    return `<text x="${pad + i*stepX}" y="${h+16}" font-size="10" fill="var(--text-dim)" text-anchor="middle">${short}</text>`;
+  }).join('');
+
+  wrap.innerHTML = `
+    <svg viewBox="0 0 ${w} ${h+24}" width="100%" style="overflow:visible">
+      <polyline points="${valencePoints}" fill="none" stroke="var(--amber)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <polyline points="${arousalPoints}" fill="none" stroke="var(--m4)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      ${dateTicks}
+    </svg>
+  `;
+}
+
+function groupAvg(filterFn, field){
+  const vals = entries.filter(filterFn).map(e => e[field]).filter(v => v !== null && v !== undefined);
+  return vals.length ? { avg: vals.reduce((a,b)=>a+b,0)/vals.length, n: vals.length } : null;
+}
+
+function computeInsights(){
+  if (entries.length < 7) return [];
+  const comparisons = [
+    { a:{desc:'nights with under 6 hours of sleep', f:e=>e.sleepHours!=null && e.sleepHours<6},
+      b:{desc:'nights with 6+ hours of sleep', f:e=>e.sleepHours!=null && e.sleepHours>=6} },
+    { a:{desc:'days with 3+ cups of caffeine', f:e=>e.caffeine!=null && e.caffeine>=3},
+      b:{desc:'days with under 3 cups', f:e=>e.caffeine!=null && e.caffeine<3} },
+    { a:{desc:'days with no exercise', f:e=>e.exercise==='None'},
+      b:{desc:'days with any movement', f:e=>e.exercise && e.exercise!=='None'} },
+    { a:{desc:'days you felt isolated', f:e=>e.social==='Isolated'},
+      b:{desc:'days with more social contact', f:e=>e.social && e.social!=='Isolated'} }
+  ];
+  const insights = [];
+  comparisons.forEach(c => {
+    const A = groupAvg(c.a.f, 'valence');
+    const B = groupAvg(c.b.f, 'valence');
+    if (A && B && A.n>=3 && B.n>=3 && Math.abs(B.avg-A.avg)>=1.3){
+      const higher = B.avg > A.avg ? c.b.desc : c.a.desc;
+      const lower = B.avg > A.avg ? c.a.desc : c.b.desc;
+      insights.push(`Your mood tends to run higher on <b>${higher}</b> than on <b>${lower}</b> (based on ${A.n + B.n} logged days).`);
+    }
+  });
+  return insights.slice(0,3);
+}
+
+function renderInsights(){
+  const wrap = document.getElementById('insights-wrap');
+  if (entries.length < 7){
+    wrap.innerHTML = '<p class="empty">Patterns show up after about a week of check-ins — skipped days are fine, they won\'t reset anything.</p>';
+    return;
+  }
+  const list = computeInsights();
+  if (list.length === 0){
+    wrap.innerHTML = '<p class="empty">No strong patterns yet — that\'s normal. More entries make these more reliable.</p>';
+    return;
+  }
+  wrap.innerHTML = list.map(t => `<div class="insight-item">${t}</div>`).join('');
+}
+
+function exportToExcel(){
+  if (entries.length === 0){
+    statusEl.textContent = 'Nothing to export yet.';
+    return;
+  }
+  XLSX.writeFile(buildWorkbook(), `mood-log-${todayStr()}.xlsx`);
+}
+
+document.getElementById('save-btn').addEventListener('click', saveEntry);
+document.getElementById('export-btn').addEventListener('click', exportToExcel);
+linkBtn.addEventListener('click', linkFile);
+reconnectBtn.addEventListener('click', reconnectFile);
+window.deleteEntry = deleteEntry;
+
+const signinBtn = document.getElementById('signin-btn');
+const signupBtn = document.getElementById('signup-btn');
+const signoutBtn = document.getElementById('signout-btn');
+const authEmail = document.getElementById('auth-email');
+const authPassword = document.getElementById('auth-password');
+const authStatus = document.getElementById('auth-status');
+
+if (cloudEnabled){
+  document.getElementById('auth-signed-out').style.display = 'block';
+
+  signinBtn.addEventListener('click', async () => {
+    authStatus.textContent = 'Signing in…';
+    try{
+      await auth.signInWithEmailAndPassword(authEmail.value.trim(), authPassword.value);
+      authStatus.textContent = '';
+    }catch(e){ authStatus.textContent = e.message; }
+  });
+
+  signupBtn.addEventListener('click', async () => {
+    authStatus.textContent = 'Creating account…';
+    try{
+      await auth.createUserWithEmailAndPassword(authEmail.value.trim(), authPassword.value);
+      authStatus.textContent = '';
+    }catch(e){ authStatus.textContent = e.message; }
+  });
+
+  signoutBtn.addEventListener('click', () => auth.signOut());
+
+  auth.onAuthStateChanged(async (user) => {
+    currentUser = user;
+    if (user){
+      document.getElementById('auth-signed-out').style.display = 'none';
+      document.getElementById('auth-signed-in').style.display = 'block';
+      document.getElementById('auth-email-display').textContent = user.email;
+      document.getElementById('sync-explainer').textContent = "Signed in — your entries sync automatically across any device you sign into.";
+      try{ await migrateLocalToCloud(user.uid); }catch(e){}
+      attachCloudListener(user.uid);
+    } else {
+      document.getElementById('auth-signed-out').style.display = 'block';
+      document.getElementById('auth-signed-in').style.display = 'none';
+      detachCloudListener();
+      loadLocalEntries();
+    }
+  });
+  tryRestoreHandle();
+} else {
+  loadLocalEntries();
+  tryRestoreHandle();
+}
+
+if ('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
